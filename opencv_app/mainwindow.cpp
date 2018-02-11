@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QResizeEvent>
-#include <QTextStream>
-#include <QCloseEvent>
+
 using namespace cv;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
+    // не очень корректное название для setHSV, так как эта функция настраивает
+    // еще и TrSize слайдер
     connect(ui->H1_max_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
     connect(ui->H1_min_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
 
@@ -25,12 +25,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->V_max_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
     connect(ui->V_min_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
 
+    //connect(ui->Size_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
+
     connect(ui->quit_pushButton, SIGNAL(clicked()), this, SLOT(saveSliderData()));
     connect(ui->quit_pushButton, SIGNAL(clicked()), this, SLOT(close()));
+
+    ui->lineEdit->setPlaceholderText("enter id");
+    connect(ui->send_pushButton, SIGNAL(clicked()), this, SLOT(send_id()));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::send_id() {
+    ui->Size_value_lbl->setText(ui->lineEdit->text());
+    id_ready = true;
 }
 
 void MainWindow::setValueToLabel() {
@@ -48,6 +58,8 @@ void MainWindow::setValueToLabel() {
 
     ui->V_max_value_lbl->setText(QString::number(v_max));
     ui->V_min_value_lbl->setText(QString::number(v_min));
+
+    //ui->Size_value_lbl->setText(QString::number(min_object_size));
 }
 
 // TODO: setHSV только для измененного слайдера
@@ -67,6 +79,8 @@ void MainWindow::setHSV() {
     v_max = ui->V_max_slider->value();
     v_min = ui->V_min_slider->value();
 
+    //min_object_size = ui->Size_slider->value();
+
     setValueToLabel();
 }
 
@@ -74,8 +88,8 @@ void MainWindow::saveSliderData() {
     QFile fileIn("/Users/inga/Desktop/MSHP/filein.txt");
     int SliderData[] = { h1_max, h1_min, h2_max, h2_min,
                          h3_max, h3_min, s_max, s_min,
-                         v_max, v_min };
-    int NumOfSliderParameters = 10;
+                         v_max, v_min, min_object_size };
+    int NumOfSliderParameters = 11;
     if(fileIn.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream writeStream(&fileIn);
         for (int i = 0; i < NumOfSliderParameters; i++) {
@@ -115,6 +129,9 @@ void MainWindow::readAndSet() {
         ui->V_max_slider->setValue(str.split("\n")[0].toInt());
         readStream >> str;
         ui->V_min_slider->setValue(str.split("\n")[0].toInt());
+
+        readStream >> str;
+        ui->Size_slider->setValue(str.split("\n")[0].toInt());
 
         fileIn.close();
     }

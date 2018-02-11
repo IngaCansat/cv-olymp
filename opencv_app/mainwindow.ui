@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>585</width>
-    <height>712</height>
+    <width>871</width>
+    <height>671</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -82,6 +82,23 @@
                </widget>
               </item>
               <item>
+               <widget class="QLineEdit" name="lineEdit">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="send_pushButton">
+                <property name="text">
+                 <string>send</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="threshold_checkBox">
                 <property name="text">
                  <string>threshold</string>
@@ -93,9 +110,58 @@
             <item>
              <layout class="QVBoxLayout" name="SV_sliders_verticalLayout">
               <item>
+               <layout class="QHBoxLayout" name="Size_horizontalLayout">
+                <item>
+                 <widget class="QLabel" name="Size_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Size</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="Size_slider">
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="Size_value_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="S_max_horizontalLayout">
                 <item>
                  <widget class="QLabel" name="S_max_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>S_max</string>
                   </property>
@@ -107,7 +173,7 @@
                    <number>255</number>
                   </property>
                   <property name="pageStep">
-                   <number>20</number>
+                   <number>10</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -116,6 +182,12 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="S_max_value_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>0</string>
                   </property>
@@ -127,6 +199,12 @@
                <layout class="QHBoxLayout" name="S_min_horizontalLayout">
                 <item>
                  <widget class="QLabel" name="S_min_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>S_min</string>
                   </property>
@@ -144,6 +222,12 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="S_min_value_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>0</string>
                   </property>
@@ -155,6 +239,12 @@
                <layout class="QHBoxLayout" name="V_max_horizontalLayout">
                 <item>
                  <widget class="QLabel" name="V_max_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>V_max</string>
                   </property>
@@ -172,6 +262,12 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="V_max_value_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>0</string>
                   </property>
@@ -183,6 +279,12 @@
                <layout class="QHBoxLayout" name="V_min_horizontalLayout">
                 <item>
                  <widget class="QLabel" name="V_min_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>V_min</string>
                   </property>
@@ -200,6 +302,12 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="V_min_value_lbl">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>0</string>
                   </property>
@@ -600,7 +708,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>585</width>
+     <width>871</width>
      <height>22</height>
     </rect>
    </property>

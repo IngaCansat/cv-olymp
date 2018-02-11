@@ -1,10 +1,9 @@
 #include "mainwindow.h"
-#include "header.h"
+
 #define PATH "/Users/inga/Desktop/MSHP/Untitled.mov"
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 480
 #define MAX_NUM_OBJECTS 500
-#define MIN_OBJECT_AREA 40*40
 #define MAX_OBJECT_AREA FRAME_HEIGHT*FRAME_WIDTH/1.5
 
 using namespace cv;
@@ -74,21 +73,17 @@ String intToString (int number) {
 
 int targetR = 0, targetG = 255, targetB = 0;
 void drawObject (int x, int y, Mat &frame, Mat cameraFeed, Robot robot) {
-    int lineX = robot.curr_line_coordinates.x;
-    int lineY = robot.curr_line_coordinates.y;
     circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
     putText(frame,intToString(x)+","+intToString(y),Point(x,y+32),1,1,Scalar(targetR,targetG,targetB),2);
     putText(frame, "id: " + intToString(robot.id), Point (x, y + 50), 1,1,Scalar(targetR,targetG,targetB),2);
     putText(frame, "FF: " + intToString(robot.first_frame), Point (x, y + 68), 1,1,Scalar(targetR,targetG,targetB),2);
-    putText(frame, intToString(lineX)+","+intToString(lineY), Point (x, y + 86), 1,1,Scalar(targetR,targetG,targetB),2);
-    putText(frame, robot.robot_color, Point(x, y+100), 1, 1, Scalar(targetR,targetG,targetB), 2);
+    putText(frame, robot.robot_color, Point(x, y+86), 1, 1, Scalar(targetR,targetG,targetB), 2);
 }
 
-std::vector <Point> numObjects;
 
-void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_frame){
-    numObjects.erase(numObjects.begin(), numObjects.end());
+void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_frame) {
     Mat temp;
+    MainWindow m;
     data.threshold.copyTo(temp);
     std::vector< std::vector<Point> > contours;
     std::vector<Vec4i> hierarchy;
@@ -100,9 +95,7 @@ void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_fr
             double area = moment.m00;
             x = moment.m10/area;
             y = moment.m01/area;
-            numObjects.emplace_back(Point(x, y));
-
-            if (area > MIN_OBJECT_AREA && area < MAX_OBJECT_AREA ) {
+            if (area > (m.min_object_size*m.min_object_size) && area < MAX_OBJECT_AREA) {
                 bool is_new = true;
                 for (size_t i = 0; i < objects.size(); i++) {
                     distance = getDistance(Point(x, y), objects[i].prev_coordinates);
@@ -115,7 +108,7 @@ void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_fr
                     }
                 }
                 if (is_new) { // вышло так, что это новый обьект, значит добавляем его
-                    objects.emplace_back(N_curr_frame, objects.size(), data.color_name);
+                    objects.emplace_back(N_curr_frame, (-1), data.color_name);
                     //objects[objects.size() - 1].lastPoints.emplace_back(Point(x, y));
                 }
             }
@@ -192,10 +185,18 @@ int main(int argc, char* argv[]) {
                     drawObject(objects[index].curr_coordinates.x, objects[index].curr_coordinates.y, cur_frame, cur_frame, objects[index]);
                 }
             }
+            if (w.id_ready) {
+                for (size_t index = 0; index < objects.size(); index++) {
+                    if (objects[index].id == -1) {
+                        objects[index].id = (w.ui->lineEdit->text()).toInt();
+                    }
+                }
+                w.id_ready = false;
+            }
             N_curr_frame++;
             cvtColor(cur_frame, cur_frame, CV_BGR2RGB);
             w.displayImage(cur_frame, LABEL_NOFILTER);
-            waitKey(30);
+            waitKey(20);
         }
     }
     w.show();

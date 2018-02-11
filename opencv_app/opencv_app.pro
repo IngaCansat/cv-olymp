@@ -29,6 +29,7 @@ PKGCONFIG += opencv
 
 LIBS += -L/usr/local/lib/
 
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp
