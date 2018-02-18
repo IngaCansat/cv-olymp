@@ -47,6 +47,12 @@ typedef enum {
 } slider_name_t;
 
 typedef enum {
+    RED = 0,
+    GREEN,
+    BLUE
+} color_t;
+
+typedef enum {
     CHECKBOX_TRACKING = 0,
     CHECKBOX_THRESHOLD,
     CHECK_BOX_H1_ENABLE,

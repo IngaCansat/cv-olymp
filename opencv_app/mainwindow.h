@@ -20,8 +20,7 @@ class MainWindow : public QMainWindow {
         bool if_checked(checkbox_name_t checkbox);
         int h1_max = 0, h1_min = 0, h2_max = 0, h2_min = 0,
             h3_max = 0, h3_min = 0, s_max = 0, s_min = 0,
-            v_max = 0, v_min = 0;
-        int min_object_size = 20;
+            v_max = 0, v_min = 0, min_object_size = 20;
         Mat thresh;
         void readAndSet();
         struct colors {

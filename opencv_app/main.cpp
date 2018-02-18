@@ -50,12 +50,11 @@ public:
         //lastPoints.emplace_back(Point(x, y));
     }
     ~Robot() {
-
     }
 };
 // вектор всех обьектов, которые подходят по площади
 // и которые находятся достаточно далеко от уже существующих обьетов
-std:: vector <Robot> objects;
+std::vector <Robot> objects;
 
 // функция вычисления расстояния между точками
 double getDistance (Point one, Point two) {
@@ -71,15 +70,29 @@ String intToString (int number) {
     return ss.str();
 }
 
-int targetR = 0, targetG = 255, targetB = 0;
-void drawObject (int x, int y, Mat &frame, Mat cameraFeed, Robot robot) {
-    circle(cameraFeed,Point(x,y),20,Scalar(0,255,0),2);
-    putText(frame,intToString(x)+","+intToString(y),Point(x,y+32),1,1,Scalar(targetR,targetG,targetB),2);
-    putText(frame, "id: " + intToString(robot.id), Point (x, y + 50), 1,1,Scalar(targetR,targetG,targetB),2);
-    putText(frame, "FF: " + intToString(robot.first_frame), Point (x, y + 68), 1,1,Scalar(targetR,targetG,targetB),2);
-    putText(frame, robot.robot_color, Point(x, y+86), 1, 1, Scalar(targetR,targetG,targetB), 2);
+void drawObject (int x, int y, Mat &frame, Mat cameraFeed, Robot robot, color_t color) {
+    int targetR = 0, targetG = 0, targetB = 0;
+    switch(color) {
+        case RED:
+            targetR = 255;
+            break;
+        case GREEN:
+            targetG = 255;
+            break;
+        case BLUE:
+            targetB = 255;
+            break;
+
+    }
+    circle(cameraFeed,Point(x,y),20,Scalar(targetB,targetG,targetR),2);
+    putText(frame, intToString(N_curr_frame), Point(x,y+32),1,1,Scalar(targetB,targetG,targetR),2);
+    putText(frame, "id: " + intToString(robot.id), Point (x, y + 50), 1,1,Scalar(targetB,targetG,targetR),2);
+    putText(frame, "FF: " + intToString(robot.first_frame), Point (x, y + 68), 1,1,Scalar(targetB,targetG,targetR),2);
+    putText(frame, robot.robot_color, Point(x, y+86), 1, 1, Scalar(targetB,targetG,targetR), 2);
+    putText(frame, intToString(robot.curr_coordinates.x)+","+intToString(robot.curr_coordinates.y), Point(x,y+100),1,1,Scalar(targetB,targetG,targetR),2);
 }
 
+std::vector <Robot> waitingList;
 
 void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_frame) {
     Mat temp;
@@ -102,14 +115,19 @@ void trackFilteredObject(int &x, int &y, MainWindow::colors data, long N_curr_fr
                     if (distance < MIN_DIST) { // значит эта точка является точкой обьекта objects[i]
                         objects[i].curr_coordinates = Point(x, y);
                         objects[i].prev_coordinates = objects[i].curr_coordinates;
-
-                        //objects[i].lastPoints.emplace_back(Point(x, y));
                         is_new = false;
                     }
                 }
-                if (is_new) { // вышло так, что это новый обьект, значит добавляем его
-                    objects.emplace_back(N_curr_frame, (-1), data.color_name);
-                    //objects[objects.size() - 1].lastPoints.emplace_back(Point(x, y));
+                for (size_t i = 0; i < waitingList.size(); i++) {
+                    distance = getDistance(Point(x, y), waitingList[i].prev_coordinates);
+                    if (distance < MIN_DIST) { // значит эта точка является точкой обьекта waitingList[i]
+                        waitingList[i].curr_coordinates = Point(x, y);
+                        waitingList[i].prev_coordinates = waitingList[i].curr_coordinates;
+                        is_new = false;
+                    }
+                }
+                if (is_new) {
+                    waitingList.emplace_back(N_curr_frame, (-1), data.color_name);
                 }
             }
         }
@@ -176,27 +194,38 @@ int main(int argc, char* argv[]) {
 
             w.form_threshold(cur_frame);
 
+            for (size_t index = 0; index < waitingList.size(); index++) {
+                if (N_curr_frame - waitingList[index].first_frame > 3*30) {
+                    if (waitingList[index].id != -1) {
+                        objects.push_back(waitingList[index]);
+                    }
+                    waitingList.erase(waitingList.begin()+index);
+                }
+                else {
+                    if (w.id_ready && waitingList[index].id == -1) {
+                        waitingList[index].id = (w.ui->lineEdit->text()).toInt();
+                    }
+                    w.id_ready = false;
+                }
+                if (w.if_checked(CHECKBOX_TRACKING)) {
+                    drawObject(waitingList[index].curr_coordinates.x, waitingList[index].curr_coordinates.y, cur_frame, cur_frame, waitingList[index], RED);
+                }
+            }
+
             if (w.if_checked(CHECKBOX_TRACKING)) {
                 for (size_t index = 0; index < objects.size(); index++) {
                     if (getDistance(objects[index].curr_coordinates, objects[index].prev_coordinates) <= 1.5) {
                         objects[index].curr_coordinates = objects[index].prev_coordinates;
                     }
-                    // рисуем те обьекты, которые не удалили ранее
-                    drawObject(objects[index].curr_coordinates.x, objects[index].curr_coordinates.y, cur_frame, cur_frame, objects[index]);
+                    drawObject(objects[index].curr_coordinates.x, objects[index].curr_coordinates.y, cur_frame, cur_frame, objects[index], GREEN);
                 }
             }
-            if (w.id_ready) {
-                for (size_t index = 0; index < objects.size(); index++) {
-                    if (objects[index].id == -1) {
-                        objects[index].id = (w.ui->lineEdit->text()).toInt();
-                    }
-                }
-                w.id_ready = false;
-            }
+
             N_curr_frame++;
+            std::cout << objects.size() << "   " << waitingList.size() << std::endl;
             cvtColor(cur_frame, cur_frame, CV_BGR2RGB);
             w.displayImage(cur_frame, LABEL_NOFILTER);
-            waitKey(20);
+            waitKey(30);
         }
     }
     w.show();
