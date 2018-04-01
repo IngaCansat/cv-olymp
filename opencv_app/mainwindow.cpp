@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
+    manager = new QNetworkAccessManager();
+
     // не очень корректное название для setHSV, так как эта функция настраивает
     // еще и TrSize слайдер
     connect(ui->H1_max_slider, SIGNAL(valueChanged(int)), this, SLOT(setHSV()));
@@ -30,17 +32,24 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->quit_pushButton, SIGNAL(clicked()), this, SLOT(saveSliderData()));
     connect(ui->quit_pushButton, SIGNAL(clicked()), this, SLOT(close()));
 
+    connect(ui->done_pushButton, SIGNAL(clicked()), this, SLOT(stop_mapping()));
+
     ui->lineEdit->setPlaceholderText("enter id");
     connect(ui->send_pushButton, SIGNAL(clicked()), this, SLOT(send_id()));
 }
 
 MainWindow::~MainWindow() {
+    delete manager;
     delete ui;
 }
 
 void MainWindow::send_id() {
     ui->Size_value_lbl->setText(ui->lineEdit->text());
     id_ready = true;
+}
+
+void MainWindow::stop_mapping() {
+    done = true;
 }
 
 void MainWindow::setValueToLabel() {
@@ -90,7 +99,7 @@ void MainWindow::saveSliderData() {
                          h3_max, h3_min, s_max, s_min,
                          v_max, v_min, min_object_size };
     int NumOfSliderParameters = 11;
-    if(fileIn.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (fileIn.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream writeStream(&fileIn);
         for (int i = 0; i < NumOfSliderParameters; i++) {
             writeStream << QString::number(SliderData[i]);
@@ -103,7 +112,7 @@ void MainWindow::saveSliderData() {
 void MainWindow::readAndSet() {
     QFile fileIn("/Users/inga/Desktop/MSHP/filein.txt");
     QString str;
-    if(fileIn.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (fileIn.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream readStream(&fileIn);
         readStream >> str;
         ui->H1_max_slider->setValue(str.split("\n")[0].toInt());

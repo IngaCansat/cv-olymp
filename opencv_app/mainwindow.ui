@@ -99,6 +99,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="done_pushButton">
+                <property name="text">
+                 <string>done</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="threshold_checkBox">
                 <property name="text">
                  <string>threshold</string>
